@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Catatan Keuangan Pribadi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .saldo-card {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .saldo-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .saldo-amount {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        th:first-child {
+            border-top-left-radius: 10px;
+        }
+        
+        th:last-child {
+            border-top-right-radius: 10px;
+        }
+        
+        td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+        
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .jenis-masuk {
+            color: #11998e;
+            font-weight: 600;
+            background: #e6f9f6;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .jenis-keluar {
+            color: #eb3b5a;
+            font-weight: 600;
+            background: #ffe6ea;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .jumlah-masuk {
+            color: #11998e;
+            font-weight: 600;
+        }
+        
+        .jumlah-keluar {
+            color: #eb3b5a;
+            font-weight: 600;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .delete-btn {
+            background: #eb3b5a;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .delete-btn:hover {
+            background: #d63049;
+            transform: scale(1.05);
+        }
+
+        .status-saldo {
+            margin-top: 12px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .status-saldo.boros {
+            display: block;
+            background: linear-gradient(135deg, #ff6b6b 0%, #eb3b5a 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(235, 59, 90, 0.35);
+        }
+
+        .status-saldo.hemat {
+            display: block;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.35);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .storage-info {
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .storage-info strong {
+            color: #667eea;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(235, 59, 90, 0.4);
+        }
+
+        .watermark {
+            margin-top: 30px;
+            padding: 15px;
+            text-align: center;
+            border-top: 2px solid #f0f0f0;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .watermark-name {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .watermark-icon {
+            display: inline-block;
+            margin: 0 4px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #11998e;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+            opacity: 0;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           TAB NAVIGATION
+           ══════════════════════════════════════════════════════════ */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            color: #666;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 0;
+            width: auto;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           LAPORAN CARDS
+           ══════════════════════════════════════════════════════════ */
+        .laporan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .laporan-header h3 {
+            color: #333;
+            font-size: 22px;
+        }
+
+        .filter-periode {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-periode select {
+            width: auto;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .summary-card.income {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .summary-card.expense {
+            background: linear-gradient(135deg, #ff6b6b 0%, #eb3b5a 100%);
+            color: white;
+        }
+
+        .summary-card.balance {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .summary-card-label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .summary-card-amount {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .summary-card-count {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           CHART CONTAINER
+           ══════════════════════════════════════════════════════════ */
+        .chart-container {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 200px;
+            gap: 10px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bar {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            transition: all 0.3s;
+            min-height: 5px;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+            transform: scaleY(1.05);
+        }
+
+        .bar-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 600;
+            color: #667eea;
+            white-space: nowrap;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           KATEGORI BREAKDOWN
+           ══════════════════════════════════════════════════════════ */
+        .kategori-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .kategori-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .kategori-item:hover {
+            background: #eef1ff;
+            transform: translateX(5px);
+        }
+
+        .kategori-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .kategori-amount {
+            font-weight: 600;
+            color: #eb3b5a;
+        }
+
+        .kategori-bar-container {
+            flex: 1;
+            margin: 0 15px;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .kategori-bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #eb3b5a 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           EXPORT BUTTON
+           ══════════════════════════════════════════════════════════ */
+        .export-btn {
+            width: auto;
+            padding: 10px 20px;
+            margin: 0;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            font-size: 14px;
+        }
+
+        .export-btn:hover {
+            box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           RESPONSIVE
+           ══════════════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                font-size: 13px;
+                padding: 10px 15px;
+            }
+
+            .laporan-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .filter-periode {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .filter-periode select {
+                width: 100%;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>💰 Catatan Keuangan Pribadi</h2>
+
+    <!-- TAB NAVIGATION -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('transaksi')">📝 Transaksi</button>
+        <button class="tab-btn" onclick="switchTab('mingguan')">📅 Laporan Mingguan</button>
+        <button class="tab-btn" onclick="switchTab('bulanan')">📊 Laporan Bulanan</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         TAB 1: TRANSAKSI
+         ══════════════════════════════════════════════════════════ -->
+    <div id="transaksi" class="tab-content active">
+        <div class="storage-info">
+            💾 <strong>Data otomatis tersimpan</strong> di browser Anda (LocalStorage). Data akan tetap ada meskipun browser ditutup.
+        </div>
+
+        <div class="form-group">
+            <label>📅 Tanggal</label>
+            <input type="date" id="tanggal">
+        </div>
+
+        <div class="form-group">
+            <label>📝 Keterangan</label>
+            <input type="text" id="keterangan" placeholder="Masukkan keterangan...">
+        </div>
+        
+        <div class="form-group">
+            <label>🔄 Jenis Transaksi</label>
+            <select id="jenis">
+                <option value="masuk">💵 Pemasukan</option>
+                <option value="keluar">💸 Pengeluaran</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>💳 Jumlah</label>
+            <input type="number" id="jumlah" placeholder="Masukkan jumlah...">
+        </div>
+
+        <button onclick="tambahData()">➕ Tambah Transaksi</button>
+        <button class="reset-btn" onclick="resetSemua()">🗑️ Reset Semua Data</button>
+
+        <div class="saldo-card">
+            <div class="saldo-label">Saldo Saat Ini</div>
+            <div class="saldo-amount" id="saldo">Rp 0</div>
+        </div>
+        <div class="status-saldo" id="statusSaldo"></div>
+
+        <table id="tabelWrapper">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Keterangan</th>
+                    <th>Jenis</th>
+                    <th>Jumlah</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabelData"></tbody>
+        </table>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         TAB 2: LAPORAN MINGGUAN
+         ══════════════════════════════════════════════════════════ -->
+    <div id="mingguan" class="tab-content">
+        <div class="laporan-header">
+            <h3>📅 Laporan Mingguan</h3>
+            <div class="filter-periode">
+                <label>Pilih Minggu:</label>
+                <select id="filterMinggu" onchange="renderLaporanMingguan()">
+                    <!-- Akan diisi otomatis oleh JavaScript -->
+                </select>
+                <button class="export-btn" onclick="exportLaporan('mingguan')">📥 Export</button>
+            </div>
+        </div>
+
+        <div class="summary-cards">
+            <div class="summary-card income">
+                <div class="summary-card-label">Total Pemasukan</div>
+                <div class="summary-card-amount" id="mingguanIncome">Rp 0</div>
+                <div class="summary-card-count" id="mingguanIncomeCount">0 transaksi</div>
+            </div>
+            <div class="summary-card expense">
+                <div class="summary-card-label">Total Pengeluaran</div>
+                <div class="summary-card-amount" id="mingguanExpense">Rp 0</div>
+                <div class="summary-card-count" id="mingguanExpenseCount">0 transaksi</div>
+            </div>
+            <div class="summary-card balance">
+                <div class="summary-card-label">Saldo Akhir</div>
+                <div class="summary-card-amount" id="mingguanBalance">Rp 0</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">📊 Grafik Harian (7 Hari)</div>
+            <div class="chart-bars" id="chartMingguan"></div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">🏷️ Pengeluaran Berdasarkan Kategori</div>
+            <div class="kategori-list" id="kategoriMingguan"></div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Keterangan</th>
+                    <th>Jenis</th>
+                    <th>Jumlah</th>
+                </tr>
+            </thead>
+            <tbody id="tabelMingguan"></tbody>
+        </table>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         TAB 3: LAPORAN BULANAN
+         ══════════════════════════════════════════════════════════ -->
+    <div id="bulanan" class="tab-content">
+        <div class="laporan-header">
+            <h3>📊 Laporan Bulanan</h3>
+            <div class="filter-periode">
+                <label>Pilih Bulan:</label>
+                <select id="filterBulan" onchange="renderLaporanBulanan()">
+                    <!-- Akan diisi otomatis oleh JavaScript -->
+                </select>
+                <button class="export-btn" onclick="exportLaporan('bulanan')">📥 Export</button>
+            </div>
+        </div>
+
+        <div class="summary-cards">
+            <div class="summary-card income">
+                <div class="summary-card-label">Total Pemasukan</div>
+                <div class="summary-card-amount" id="bulananIncome">Rp 0</div>
+                <div class="summary-card-count" id="bulananIncomeCount">0 transaksi</div>
+            </div>
+            <div class="summary-card expense">
+                <div class="summary-card-label">Total Pengeluaran</div>
+                <div class="summary-card-amount" id="bulananExpense">Rp 0</div>
+                <div class="summary-card-count" id="bulananExpenseCount">0 transaksi</div>
+            </div>
+            <div class="summary-card balance">
+                <div class="summary-card-label">Saldo Akhir</div>
+                <div class="summary-card-amount" id="bulananBalance">Rp 0</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">📊 Grafik Mingguan (Per Minggu)</div>
+            <div class="chart-bars" id="chartBulanan"></div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">🏷️ Pengeluaran Berdasarkan Kategori</div>
+            <div class="kategori-list" id="kategoriBulanan"></div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Keterangan</th>
+                    <th>Jenis</th>
+                    <th>Jumlah</th>
+                </tr>
+            </thead>
+            <tbody id="tabelBulanan"></tbody>
+        </table>
+    </div>
+
+    <div class="watermark">
+        Created <span class="watermark-icon">by</span> <span class="watermark-name">Kevin Nayaka</span>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+    let data = [];
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // FUNGSI LOCALSTORAGE
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function simpanKeLocalStorage() {
+        localStorage.setItem('dataKeuangan', JSON.stringify(data));
+    }
+
+    function ambilDariLocalStorage() {
+        const dataLokal = localStorage.getItem('dataKeuangan');
+        if (dataLokal) {
+            data = JSON.parse(dataLokal);
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // FUNGSI TOAST NOTIFICATION
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        
+        if (type === 'success') {
+            toast.style.background = '#11998e';
+        } else if (type === 'error') {
+            toast.style.background = '#eb3b5a';
+        } else if (type === 'warning') {
+            toast.style.background = '#f7b731';
+        }
+        
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // FUNGSI TAB SWITCHING
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function switchTab(tabName) {
+        // Hide all tabs
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => tab.classList.remove('active'));
+
+        // Remove active from all buttons
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        // Show selected tab
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
+
+        // Render laporan jika pindah ke tab laporan
+        if (tabName === 'mingguan') {
+            populateFilterMinggu();
+            renderLaporanMingguan();
+        } else if (tabName === 'bulanan') {
+            populateFilterBulan();
+            renderLaporanBulanan();
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // FUNGSI RENDER TABEL TRANSAKSI
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function render() {
+        let tabel = document.getElementById("tabelData");
+        tabel.innerHTML = "";
+        let saldo = 0;
+
+        if (data.length === 0) {
+            tabel.innerHTML = '<tr><td colspan="5" class="empty-state">Belum ada transaksi. Mulai tambahkan data keuangan Anda!</td></tr>';
+        } else {
+            data.forEach((d, index) => {
+                let row = tabel.insertRow();
+                
+                let cellTanggal = row.insertCell(0);
+                cellTanggal.innerText = new Date(d.tanggal).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                
+                row.insertCell(1).innerText = d.keterangan;
+                
+                let cellJenis = row.insertCell(2);
+                if (d.jenis === "masuk") {
+                    cellJenis.innerHTML = '<span class="jenis-masuk">Pemasukan</span>';
+                } else {
+                    cellJenis.innerHTML = '<span class="jenis-keluar">Pengeluaran</span>';
+                }
+                
+                let cellJumlah = row.insertCell(3);
+                let jumlahFormatted = "Rp " + d.jumlah.toLocaleString("id-ID");
+                if (d.jenis === "masuk") {
+                    cellJumlah.innerHTML = '<span class="jumlah-masuk">+' + jumlahFormatted + '</span>';
+                    saldo += d.jumlah;
+                } else {
+                    cellJumlah.innerHTML = '<span class="jumlah-keluar">-' + jumlahFormatted + '</span>';
+                    saldo -= d.jumlah;
+                }
+                
+                let cellAksi = row.insertCell(4);
+                cellAksi.innerHTML = '<button class="delete-btn" onclick="hapusData(' + index + ')">🗑️</button>';
+            });
+        }
+
+        document.getElementById("saldo").innerText = "Rp " + saldo.toLocaleString("id-ID");
+
+        let saldoCard   = document.querySelector(".saldo-card");
+        let statusEl    = document.getElementById("statusSaldo");
+
+        if (saldo < 0) {
+            saldoCard.style.background = "linear-gradient(135deg, #ff6b6b 0%, #eb3b5a 100%)";
+            statusEl.className  = "status-saldo boros";
+            statusEl.innerText = "⚠️ Anda sangat boros!";
+        } else if (saldo > 0) {
+            saldoCard.style.background = "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)";
+            statusEl.className  = "status-saldo hemat";
+            statusEl.innerText = "✅ Anda masih hemat!";
+        } else {
+            saldoCard.style.background = "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)";
+            statusEl.className  = "status-saldo";
+            statusEl.innerText = "";
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // FUNGSI TAMBAH DATA
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function tambahData() {
+        let tanggal = document.getElementById("tanggal").value;
+        let keterangan = document.getElementById("keterangan").value;
+        let jenis = document.getElementById("jenis").value;
+        let jumlah = parseInt(document.getElementById("jumlah").value);
+
+        if (!tanggal || !keterangan || !jumlah) {
+            showToast("⚠️ Mohon lengkapi semua data!", "warning");
+            return;
+        }
+
+        if (jumlah <= 0) {
+            showToast("⚠️ Jumlah harus lebih dari 0!", "warning");
+            return;
+        }
+
+        data.push({ tanggal, keterangan, jenis, jumlah });
+        simpanKeLocalStorage();
+        render();
+
+        document.getElementById("keterangan").value = "";
+        document.getElementById("jumlah").value = "";
+        document.getElementById("tanggal").value = new Date().toISOString().split('T')[0];
+
+        showToast("✅ Transaksi berhasil ditambahkan!", "success");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // FUNGSI HAPUS DATA
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function hapusData(index) {
+        if (confirm("Yakin ingin menghapus transaksi ini?")) {
+            data.splice(index, 1);
+            simpanKeLocalStorage();
+            render();
+            showToast("🗑️ Transaksi berhasil dihapus!", "error");
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // FUNGSI RESET SEMUA DATA
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function resetSemua() {
+        if (confirm("⚠️ PERHATIAN!\n\nAnda akan menghapus SEMUA data transaksi.\nTindakan ini tidak dapat dibatalkan!\n\nLanjutkan?")) {
+            data = [];
+            localStorage.removeItem('dataKeuangan');
+            render();
+            showToast("🗑️ Semua data berhasil dihapus!", "error");
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // FUNGSI HELPER UNTUK TANGGAL
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function getWeekNumber(date) {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+        const yearStart = new Date(d.getFullYear(), 0, 1);
+        const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        return weekNo;
+    }
+
+    function getWeekRange(date) {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(d.setDate(diff));
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        
+        return {
+            start: monday.toISOString().split('T')[0],
+            end: sunday.toISOString().split('T')[0],
+            label: `${monday.getDate()} ${monday.toLocaleDateString('id-ID', {month: 'short'})} - ${sunday.getDate()} ${sunday.toLocaleDateString('id-ID', {month: 'short'})} ${sunday.getFullYear()}`
+        };
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // POPULATE FILTER MINGGU
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function populateFilterMinggu() {
+        const select = document.getElementById('filterMinggu');
+        select.innerHTML = '';
+
+        if (data.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Belum ada data';
+            select.appendChild(option);
+            return;
+        }
+
+        // Dapatkan semua minggu unik dari data
+        const weeks = new Set();
+        data.forEach(d => {
+            const weekRange = getWeekRange(d.tanggal);
+            weeks.add(JSON.stringify(weekRange));
+        });
+
+        const weeksArray = Array.from(weeks).map(w => JSON.parse(w));
+        weeksArray.sort((a, b) => new Date(b.start) - new Date(a.start));
+
+        weeksArray.forEach((week, index) => {
+            const option = document.createElement('option');
+            option.value = JSON.stringify(week);
+            option.textContent = week.label;
+            if (index === 0) option.selected = true;
+            select.appendChild(option);
+        });
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // POPULATE FILTER BULAN
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function populateFilterBulan() {
+        const select = document.getElementById('filterBulan');
+        select.innerHTML = '';
+
+        if (data.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Belum ada data';
+            select.appendChild(option);
+            return;
+        }
+
+        // Dapatkan semua bulan unik dari data
+        const months = new Set();
+        data.forEach(d => {
+            const date = new Date(d.tanggal);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            months.add(monthKey);
+        });
+
+        const monthsArray = Array.from(months).sort().reverse();
+
+        monthsArray.forEach((month, index) => {
+            const [year, monthNum] = month.split('-');
+            const date = new Date(year, parseInt(monthNum) - 1, 1);
+            const label = date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            
+            const option = document.createElement('option');
+            option.value = month;
+            option.textContent = label;
+            if (index === 0) option.selected = true;
+            select.appendChild(option);
+        });
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // RENDER LAPORAN MINGGUAN
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function renderLaporanMingguan() {
+        const select = document.getElementById('filterMinggu');
+        if (!select.value) {
+            document.getElementById('tabelMingguan').innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada data untuk ditampilkan</td></tr>';
+            return;
+        }
+
+        const weekRange = JSON.parse(select.value);
+        const startDate = new Date(weekRange.start);
+        const endDate = new Date(weekRange.end);
+
+        // Filter data berdasarkan minggu yang dipilih
+        const weekData = data.filter(d => {
+            const date = new Date(d.tanggal);
+            return date >= startDate && date <= endDate;
+        });
+
+        // Hitung summary
+        let totalIncome = 0;
+        let totalExpense = 0;
+        let incomeCount = 0;
+        let expenseCount = 0;
+
+        weekData.forEach(d => {
+            if (d.jenis === 'masuk') {
+                totalIncome += d.jumlah;
+                incomeCount++;
+            } else {
+                totalExpense += d.jumlah;
+                expenseCount++;
+            }
+        });
+
+        document.getElementById('mingguanIncome').innerText = 'Rp ' + totalIncome.toLocaleString('id-ID');
+        document.getElementById('mingguanExpense').innerText = 'Rp ' + totalExpense.toLocaleString('id-ID');
+        document.getElementById('mingguanBalance').innerText = 'Rp ' + (totalIncome - totalExpense).toLocaleString('id-ID');
+        document.getElementById('mingguanIncomeCount').innerText = incomeCount + ' transaksi';
+        document.getElementById('mingguanExpenseCount').innerText = expenseCount + ' transaksi';
+
+        // Render chart harian
+        renderChartHarian(weekData, startDate, endDate);
+
+        // Render kategori pengeluaran
+        renderKategoriPengeluaran(weekData, 'kategoriMingguan');
+
+        // Render tabel
+        const tabel = document.getElementById('tabelMingguan');
+        tabel.innerHTML = '';
+
+        if (weekData.length === 0) {
+            tabel.innerHTML = '<tr><td colspan="4" class="empty-state">Tidak ada transaksi pada minggu ini</td></tr>';
+        } else {
+            weekData.forEach(d => {
+                let row = tabel.insertRow();
+                
+                let cellTanggal = row.insertCell(0);
+                cellTanggal.innerText = new Date(d.tanggal).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                
+                row.insertCell(1).innerText = d.keterangan;
+                
+                let cellJenis = row.insertCell(2);
+                if (d.jenis === "masuk") {
+                    cellJenis.innerHTML = '<span class="jenis-masuk">Pemasukan</span>';
+                } else {
+                    cellJenis.innerHTML = '<span class="jenis-keluar">Pengeluaran</span>';
+                }
+                
+                let cellJumlah = row.insertCell(3);
+                let jumlahFormatted = "Rp " + d.jumlah.toLocaleString("id-ID");
+                if (d.jenis === "masuk") {
+                    cellJumlah.innerHTML = '<span class="jumlah-masuk">+' + jumlahFormatted + '</span>';
+                } else {
+                    cellJumlah.innerHTML = '<span class="jumlah-keluar">-' + jumlahFormatted + '</span>';
+                }
+            });
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // RENDER CHART HARIAN (7 HARI)
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function renderChartHarian(weekData, startDate, endDate) {
+        const chartContainer = document.getElementById('chartMingguan');
+        chartContainer.innerHTML = '';
+
+        // Generate 7 hari
+        const days = [];
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+            days.push(date);
+        }
+
+        // Hitung total pengeluaran per hari
+        const dailyExpenses = days.map(day => {
+            const dayStr = day.toISOString().split('T')[0];
+            const dayData = weekData.filter(d => d.tanggal === dayStr && d.jenis === 'keluar');
+            return dayData.reduce((sum, d) => sum + d.jumlah, 0);
+        });
+
+        const maxExpense = Math.max(...dailyExpenses, 1);
+
+        days.forEach((day, index) => {
+            const expense = dailyExpenses[index];
+            const height = (expense / maxExpense) * 100;
+
+            const barContainer = document.createElement('div');
+            barContainer.className = 'chart-bar';
+
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = height + '%';
+
+            if (expense > 0) {
+                const value = document.createElement('div');
+                value.className = 'bar-value';
+                value.innerText = 'Rp ' + expense.toLocaleString('id-ID');
+                bar.appendChild(value);
+            }
+
+            const label = document.createElement('div');
+            label.className = 'bar-label';
+            label.innerText = day.toLocaleDateString('id-ID', { weekday: 'short' });
+
+            barContainer.appendChild(bar);
+            barContainer.appendChild(label);
+            chartContainer.appendChild(barContainer);
+        });
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // RENDER LAPORAN BULANAN
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function renderLaporanBulanan() {
+        const select = document.getElementById('filterBulan');
+        if (!select.value) {
+            document.getElementById('tabelBulanan').innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada data untuk ditampilkan</td></tr>';
+            return;
+        }
+
+        const [year, month] = select.value.split('-');
+        
+        // Filter data berdasarkan bulan yang dipilih
+        const monthData = data.filter(d => {
+            const date = new Date(d.tanggal);
+            return date.getFullYear() === parseInt(year) && date.getMonth() === parseInt(month) - 1;
+        });
+
+        // Hitung summary
+        let totalIncome = 0;
+        let totalExpense = 0;
+        let incomeCount = 0;
+        let expenseCount = 0;
+
+        monthData.forEach(d => {
+            if (d.jenis === 'masuk') {
+                totalIncome += d.jumlah;
+                incomeCount++;
+            } else {
+                totalExpense += d.jumlah;
+                expenseCount++;
+            }
+        });
+
+        document.getElementById('bulananIncome').innerText = 'Rp ' + totalIncome.toLocaleString('id-ID');
+        document.getElementById('bulananExpense').innerText = 'Rp ' + totalExpense.toLocaleString('id-ID');
+        document.getElementById('bulananBalance').innerText = 'Rp ' + (totalIncome - totalExpense).toLocaleString('id-ID');
+        document.getElementById('bulananIncomeCount').innerText = incomeCount + ' transaksi';
+        document.getElementById('bulananExpenseCount').innerText = expenseCount + ' transaksi';
+
+        // Render chart mingguan
+        renderChartMingguan(monthData, year, month);
+
+        // Render kategori pengeluaran
+        renderKategoriPengeluaran(monthData, 'kategoriBulanan');
+
+        // Render tabel
+        const tabel = document.getElementById('tabelBulanan');
+        tabel.innerHTML = '';
+
+        if (monthData.length === 0) {
+            tabel.innerHTML = '<tr><td colspan="4" class="empty-state">Tidak ada transaksi pada bulan ini</td></tr>';
+        } else {
+            monthData.forEach(d => {
+                let row = tabel.insertRow();
+                
+                let cellTanggal = row.insertCell(0);
+                cellTanggal.innerText = new Date(d.tanggal).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                
+                row.insertCell(1).innerText = d.keterangan;
+                
+                let cellJenis = row.insertCell(2);
+                if (d.jenis === "masuk") {
+                    cellJenis.innerHTML = '<span class="jenis-masuk">Pemasukan</span>';
+                } else {
+                    cellJenis.innerHTML = '<span class="jenis-keluar">Pengeluaran</span>';
+                }
+                
+                let cellJumlah = row.insertCell(3);
+                let jumlahFormatted = "Rp " + d.jumlah.toLocaleString("id-ID");
+                if (d.jenis === "masuk") {
+                    cellJumlah.innerHTML = '<span class="jumlah-masuk">+' + jumlahFormatted + '</span>';
+                } else {
+                    cellJumlah.innerHTML = '<span class="jumlah-keluar">-' + jumlahFormatted + '</span>';
+                }
+            });
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // RENDER CHART MINGGUAN (PER MINGGU DALAM BULAN)
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function renderChartMingguan(monthData, year, month) {
+        const chartContainer = document.getElementById('chartBulanan');
+        chartContainer.innerHTML = '';
+
+        // Dapatkan minggu-minggu dalam bulan
+        const firstDay = new Date(year, month - 1, 1);
+        const lastDay = new Date(year, month, 0);
+        
+        const weeks = [];
+        let currentWeek = getWeekRange(firstDay);
+        weeks.push(currentWeek);
+
+        let tempDate = new Date(currentWeek.end);
+        tempDate.setDate(tempDate.getDate() + 1);
+
+        while (tempDate <= lastDay) {
+            currentWeek = getWeekRange(tempDate);
+            weeks.push(currentWeek);
+            tempDate = new Date(currentWeek.end);
+            tempDate.setDate(tempDate.getDate() + 1);
+        }
+
+        // Hitung total pengeluaran per minggu
+        const weeklyExpenses = weeks.map(week => {
+            const weekStart = new Date(week.start);
+            const weekEnd = new Date(week.end);
+            const weekData = monthData.filter(d => {
+                const date = new Date(d.tanggal);
+                return date >= weekStart && date <= weekEnd && d.jenis === 'keluar';
+            });
+            return weekData.reduce((sum, d) => sum + d.jumlah, 0);
+        });
+
+        const maxExpense = Math.max(...weeklyExpenses, 1);
+
+        weeks.forEach((week, index) => {
+            const expense = weeklyExpenses[index];
+            const height = (expense / maxExpense) * 100;
+
+            const barContainer = document.createElement('div');
+            barContainer.className = 'chart-bar';
+
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = height + '%';
+
+            if (expense > 0) {
+                const value = document.createElement('div');
+                value.className = 'bar-value';
+                value.innerText = 'Rp ' + expense.toLocaleString('id-ID');
+                bar.appendChild(value);
+            }
+
+            const label = document.createElement('div');
+            label.className = 'bar-label';
+            label.innerText = 'Minggu ' + (index + 1);
+
+            barContainer.appendChild(bar);
+            barContainer.appendChild(label);
+            chartContainer.appendChild(barContainer);
+        });
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // RENDER KATEGORI PENGELUARAN
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function renderKategoriPengeluaran(periodData, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        // Kelompokkan pengeluaran berdasarkan keterangan
+        const categories = {};
+        const expenses = periodData.filter(d => d.jenis === 'keluar');
+
+        expenses.forEach(d => {
+            if (categories[d.keterangan]) {
+                categories[d.keterangan] += d.jumlah;
+            } else {
+                categories[d.keterangan] = d.jumlah;
+            }
+        });
+
+        // Urutkan berdasarkan jumlah
+        const sortedCategories = Object.entries(categories).sort((a, b) => b[1] - a[1]);
+
+        if (sortedCategories.length === 0) {
+            container.innerHTML = '<div class="empty-state">Tidak ada pengeluaran pada periode ini</div>';
+            return;
+        }
+
+        const totalExpense = sortedCategories.reduce((sum, [_, amount]) => sum + amount, 0);
+
+        // Tampilkan top 5
+        sortedCategories.slice(0, 5).forEach(([category, amount]) => {
+            const percentage = (amount / totalExpense) * 100;
+
+            const item = document.createElement('div');
+            item.className = 'kategori-item';
+
+            const name = document.createElement('div');
+            name.className = 'kategori-name';
+            name.innerText = category;
+
+            const barContainer = document.createElement('div');
+            barContainer.className = 'kategori-bar-container';
+
+            const barFill = document.createElement('div');
+            barFill.className = 'kategori-bar-fill';
+            barFill.style.width = percentage + '%';
+
+            barContainer.appendChild(barFill);
+
+            const amountDiv = document.createElement('div');
+            amountDiv.className = 'kategori-amount';
+            amountDiv.innerText = 'Rp ' + amount.toLocaleString('id-ID');
+
+            item.appendChild(name);
+            item.appendChild(barContainer);
+            item.appendChild(amountDiv);
+            container.appendChild(item);
+        });
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // EXPORT LAPORAN
+    // ══════════════════════════════════════════════════════════════════════════════════
+    function exportLaporan(type) {
+        let exportData = '';
+        let filename = '';
+
+        if (type === 'mingguan') {
+            const select = document.getElementById('filterMinggu');
+            if (!select.value) {
+                showToast('⚠️ Tidak ada data untuk diexport', 'warning');
+                return;
+            }
+
+            const weekRange = JSON.parse(select.value);
+            const startDate = new Date(weekRange.start);
+            const endDate = new Date(weekRange.end);
+
+            const weekData = data.filter(d => {
+                const date = new Date(d.tanggal);
+                return date >= startDate && date <= endDate;
+            });
+
+            filename = `Laporan_Mingguan_${weekRange.start}.csv`;
+            exportData = 'Tanggal,Keterangan,Jenis,Jumlah\n';
+            weekData.forEach(d => {
+                exportData += `${d.tanggal},${d.keterangan},${d.jenis === 'masuk' ? 'Pemasukan' : 'Pengeluaran'},${d.jumlah}\n`;
+            });
+        } else if (type === 'bulanan') {
+            const select = document.getElementById('filterBulan');
+            if (!select.value) {
+                showToast('⚠️ Tidak ada data untuk diexport', 'warning');
+                return;
+            }
+
+            const [year, month] = select.value.split('-');
+            const monthData = data.filter(d => {
+                const date = new Date(d.tanggal);
+                return date.getFullYear() === parseInt(year) && date.getMonth() === parseInt(month) - 1;
+            });
+
+            filename = `Laporan_Bulanan_${year}_${month}.csv`;
+            exportData = 'Tanggal,Keterangan,Jenis,Jumlah\n';
+            monthData.forEach(d => {
+                exportData += `${d.tanggal},${d.keterangan},${d.jenis === 'masuk' ? 'Pemasukan' : 'Pengeluaran'},${d.jumlah}\n`;
+            });
+        }
+
+        // Download file
+        const blob = new Blob([exportData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+
+        showToast('📥 Laporan berhasil diexport!', 'success');
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // INISIALISASI
+    // ══════════════════════════════════════════════════════════════════════════════════
+    window.onload = function() {
+        ambilDariLocalStorage();
+        document.getElementById("tanggal").value = new Date().toISOString().split('T')[0];
+        render();
+
+        if (data.length > 0) {
+            showToast("💾 Data berhasil dimuat dari LocalStorage!", "success");
+        }
+    };
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // KEYBOARD SHORTCUT
+    // ══════════════════════════════════════════════════════════════════════════════════
+    document.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && document.activeElement.id === 'jumlah') {
+            tambahData();
+        }
+    });
+</script>
+
+</body>
+</html>
